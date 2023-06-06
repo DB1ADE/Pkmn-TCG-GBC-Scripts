@@ -1,0 +1,124 @@
+Usefull source code:
+https://github.com/Krankdud/tcg-save-editor
+
+
+* 01 *
+Frischer Spielstand, 1x gespeichert
+Name: KEVIN
+Deck: Glumanda&Freunde
+
+* 02 *
+Einfach nochmal gespeichert
+
+01 und 02 sind identisch
+
+* 03 *
+Duell mit Britta gestartet
+
+* 04 *
+zurück zu 02 resettet
+In Wasserarene gegangen, mit Ronald gesprochen
+
+Name gefunden
+03 3A 03 34 03 45 03 38 03 3D 00 00
+https://github.com/Krankdud/tcg-save-editor/blob/5cf7f3d524f7e344e5a4427ca21f3f11508f2c7b/save_editor.js#L38
+taucht 4x auf, Offsets: 0x6314, 0x6714, 0x6B14, 0x6F14
+6 chars -> 12 Bytes
+
+* 05 *
+1 Schritt nach links gegangen
+
+Ähnliche Änderungen bei 0x1800 und 0x5800
+Massive Änderungen bei 0x1900
+
+* 06 *
+1 Schritt nach links gegangen
+
+Ähnliche Änderungen bei 0x1800 und 0x5800
+
+* 07 *
+1 Schritt nach links gegangen
+
+Ähnliche Änderungen bei 0x1800 und 0x5800
+Massive Änderungen bei 0x1900
+Spielzeit wird gespeichert, aktuell 0:21
+
+0x1811, 0x5811 zählt beim nach links gehen jeweils um 2 runter
+
+* 08 *
+2min gewartet, Spielzeit jetzt bei 0:23
+
+Ähnliche Änderungen bei 0x1800 und 0x5800
+1 Byte Änderung bei 0x1910
+
+* 09 *
+Deck umbenannt: "GLUMANDA & FREUNDE" -> "MEIN DECK"
+
+0x200 Name 1. Deck, ASCII, Großbuchstaben, 0-terminiert
+Name extern editiert, geladen, wird angezeigt, keine Fehlermeldung wegen korruptem Spielstand oder so, Modifikation wieder verworfen
+0x4200 auch Name 1. Deck
+Deckliste scheint doppelt im Speicher zu liegen, mit 0x4000 Offset
+
+Deck Kartenliste entdeckt bei 0x218-0x253
+60 Bytes: 02 02 02 02 02 02 02 02 02 02 04 04 04 04 04 04 04 04 05 05 05 05 05 05 30 30 31 32 36 36 38 39 39 3B 60 60 67 69 69 6B 75 79 79 7A 7D 7E A7 A7 A8 B1 C3 C5 C5 D2 D6 D8 DD DD DF DF
+Das sind 10x Feuerenergie (02), 8x Elektroenergie (04)
+
+ca. 0x350-0x4F3 Decksicherungsmaschine 5 Plätze
+Ein Deck beginnt mit 0x06
+
+Deck testweise umbenannt -> 0x200 Deckname wurde ohne Tagebucheintrag verändert
+hat mehrmals geklappt -> 0x200 scheint Autosave zu sein, 0x4200 dann der Tagebucheintrag. Zumindest für Decks.
+
+Charakteristisches Deck "giikuyyz" mit Länge 0x3C (=60) Bytes. (zum Teil Ohne Deckname, nur Karten?)
+Entspricht Original "GLUMANDA & FREUNDE".
+Adressen (0x):
+023C, -> Mein Deck Autosave
+038C, -> Decksicherungsmaschine Autosave
+1E28, -> ohne Name
+423C, -> Mein Deck Tagebuch
+438C, -> Decksicherungsmaschine 
+5E28, -> ohne Name
+6238, -> ohne Name
+6638, -> ohne Name
+6A38, -> ohne Name
+6E38, -> ohne Name
+
+Es gibt 60 Plätze in der Decksicherungsmaschine!
+Start bei 0x350, Länge 0x54*60=0x13B0 -> Theoretisch Ende vor 0x1700
+
+* 10 *
+Zu PC gelaufen, davor gestellt
+
+* 11 *
+1. Email geöffnet, Booster Kolloseum erhalten:
+- Lv40 Kangama
+- Lv12 Jurob
+- Lv25 Nidorino
+- Lv38 Kadabra
+- Lv20 Macholo
+- Lv10 Glumanda
+- Tausch
+- Lv13 Magnetilo
+- Lv15 Sterndu
+- Kampfenergie
+Spielzeit 0:24
+
+Zwischen 0x100 und 0x1FF haben sich 10 Bytes um je 1 erhöht, genauso bei 0x4100 bis 0x1FF
+Es haben sich genau 10 Bytes geändert. Entweder von 0x80->0x01 oder um 1 erhöht
+Testweise Werte verändert -> Geändert haben sich die für neue Decks verfügbaren Karten! :)
+Gesamtzahl der Karten = Karten im Deck (in Decks?) + Kartenvorrat.
+0x80 könnte Code Spezialwert sein für "noch nie gesehen".
+Blockgröße genau 256 Bytes, das wäre genug für 256 Karten. 226 Karten gibt es, würde also passen.
+Alle auf 0x01 gesetzt, habe jetzt jede Karte 1x auf Vorrat.
+
+Kartenlist: https://github.com/Krankdud/tcg-save-editor/blob/5cf7f3d524f7e344e5a4427ca21f3f11508f2c7b/cards.js
+'byte' ist Index. 0x4100 + Index = Karte. Damit eindeutig zuordenbar.
+Min 0x01, Max 0xDF -> 223 Karten insgesamt. Rest scheint Platzhalter zu sein.
+Das Maximum an Vorratskarten scheint 99 (0x63) zu sein bei 100 (0x64) wird "+0" angezeigt.
+Das Maximum wird automatisch nach unten korrigiert, sobald man einen neuen Booster erhält. Deck+Vorrat <= 99.
+
+Vollständige Card List mit IDs:
+https://cooltrainer.org/oldbpu/tcg_gs.html
+Grass Energy: 01, Fire Energy: 02, Water Energy: 03, Lightning Energy: 04, Fighting Energy: 05, Psychic Energy: 06, Double Colorless Energy: 07, Bulbasaur: 08, Ivysaur: 09, Venusaur (Card Pop! Promo): 0A, Venusaur: 0B, Caterpie: 0C, Metapod: 0D, Butterfree: 0E, Weedle: 0F, Kakuna: 10, Beedrill: 11, Ekans: 12, Arbok: 13, Nidoran Female: 14, Nidorina: 15, Nidoqueen: 16, Nidoran Male: 17, Nidorino: 18, Nidoking: 19, Zubat: 1A, Golbat: 1B, Oddish: 1C, Gloom: 1D, Vileplume: 1E, Paras: 1F, Parasect: 20, Venonat: 21, Venomoth: 22, Bellsprout: 23, Weepinbell: 24, Victreebell: 25, Grimer: 26, Muk: 27, Exeggcute: 28, Exeggutor: 29, Koffing: 2A, Wheezing: 2B, Tangela (GB): 2C Tangela: 2D, Scyther: 2E, Pinsir: 2F, Charmander: 30, Charmelion: 31, Charizard: 32, Vulpix: 33, Ninetales: 34, Ninetales (GB): 35, Growlithe: 36, Arcanine (Promo): 37, Arcanine: 38, Ponyta: 39, Rapidash: 3A, Magmar: 3B, Magmar (Fossil): 3C, Flareon (GB): 3D, Flareon (Jungle): 3E, Moltres: 3F, Legendary Moltres: 40, Squirtle: 41, Wartortle: 42, Blastoise: 43, Psyduck: 44, Golduck: 45, Poliwag: 46, Poliwhirl: 47, Poliwrath: 48, Tentacool: 49, Tentacruel: 4A, Seel: 4B, Dewgong: 4C, Shellder: 4D, Cloister: 4E, Krabby: 4F, Kingler: 50, Horsea: 51, Seadra: 52, Goldeen: 53, Seaking: 54, Staryu: 55, Starmie: 56, Magikarp: 57, Gyarados: 58, Lapras: 59, Vaporeon (GB): 5A, Vaporeon (Jungle): 5B, Omanyte: 5C, Omastar: 5D, Articuno: 5E, Legendary Articuno: 5F, Pikachu: 60, Pikachu (Jungle): 61, Pikachu (promo): 62, Pikachu (promo): 63, Flying Pikachu: 64, Surfing Pikachu: 65, Surfing Pikachu: 66, Raichu: 67, Raichu (Fossil): 68, Magnemite: 69, Magnemite (GB): 6A, Magneton: 6B, Magneton (Fossil): 6C, Voltorb: 6D, Electrode (GB): 6E, Electrode (Jungle): 6F, Electabuzz (Promo): 70, Electabuzz: 71, Jolteon (GB): 72, Jolteon: 73, Zapdos: 74, Zapdos (Fossil): 75, Legendary Zapdos: 76, Sandshrew: 77, Sandslash: 78, Diglett: 79, Dugtrio: 7A, Mankey: 7B, Primeape: 7C, Machop: 7D, Machoke: 7E, Machamp: 7F, Geodude: 80, Graveler: 81, Golem: 82, Onix: 83, Cubone: 84, Marowak (Jungle): 85, Marowak (GB): 86, Hitmonlee: 87, Hitmonchan: 88, Rhyhorn: 89, Rhydon: 8A, Kabuto: 8B, Kabutops: 8C, Aerodactlyl: 8D, Abra: 8E, Kadabra: 8F, Alakazam: 90, Slowpoke (Promo): 91, Slowpoke (Fossil): 92, Slowbro: 93, Gastly: 94, Gastly (Fossil): 95, Haunter (Fossil): 96, Haunter: 97, Gengar: 98, Drowzee: 99, Hypno: 9A, Mr. Mime: 9B, Jynx: 9C, Mewtwo: 9D, Mewtwo (Promo): 9E, Mewtwo (Promo): 9F, Mew (Promo): A0, Mew (Card Pop! Promo): A1, Mew: A2, Pidgey: A3, Pidgeotto: A4, Pidgeot (GB): A5, Pidgeot (Jungle): A6, Rattata: A7, Raticate: A8, Spearow: A9, Fearow: AA, Clefairy: AB, Clefable: AC, Jigglypuff (Promo): AD, Jigglypuff (GB): AE, Jigglypuff (Jungle): AF, Wigglytuff: B0, Meowth (GB): B1, Meowth (Jungle): B2, Persian: B3, Farfetch'd: B4, Doduo: B5, Dodrio: B6, Lickitung: B7, Chansey: B8, Kangaskhan: B9, Tauros: BA, Ditto: BB, Eevee: BC, Porygon: BD, Snorlax: BE, Dratini: BF, Dragonair: C0, Legendary Dragonite: C1, Dragonite: C2, Professor Oak: C3, Imposter Professor Oak: C4, Bill: C5, Mr. Fuji: C6, Lass: C7, Imakuni?: C8, Pokemon Trader: C9, Pokemon Breeder: CA, Clefairy Doll: CB, Mysterious Fossil: CC, Energy Retrieval: CD, Super Energy Retrieval: CE, Energy Search:: CF, Energy Removal: D0, Super Energy Removal: D1, Switch: D2, Pokemon Center: D3, Pokeball: D4, Scoop Up: D5, Computer Search: D6, Pokedex: D7, Pluspower: D8, Defender: D9, Item Finder: DA, Gust of Wind: DB, Devolution Spray: DC, Potion: DD, Super Potion: DE, Full Heal: DF, Revive: E0, Maintenance: E1, Pokemon Flute: E2, Gambler: E3, Recycle: E4
+
+
